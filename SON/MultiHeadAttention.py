@@ -7,7 +7,7 @@ class MultiHeadAttention(tf.keras.Model):
         super(MultiHeadAttention, self).__init__()
 
         self.hidden_size = hidden_size
-        self.head = head  # head 갯수
+        self.head = head  # head의 수
 
         self.wq = tf.keras.layers.Dense(hidden_size, use_bias=False)
         self.wk = tf.keras.layers.Dense(hidden_size, use_bias=False)
