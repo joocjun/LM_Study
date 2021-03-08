@@ -45,7 +45,7 @@ class MultiHeadAttention(tf.keras.Model):
                                                  scaled_attention_logit.shape)
 
         attention_weight = tf.nn.softmax(scaled_attention_logit, axis=-1)
-
+        # head_n,bs,ts,hs/head_n
         output = tf.reshape(tf.matmul(attention_weight, wv), q.shape)
         output = self.linear(output)
         # (bs,ts,hs)
