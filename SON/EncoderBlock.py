@@ -1,6 +1,6 @@
 import tensorflow as tf
 from MultiHeadAttention import MultiHeadAttention
-
+#train mode / inference mode 구별 추가
 class EncoderBlock(tf.keras.Model):
     def __init__(self,hidden_size,head):
         super(EncoderBlock,self).__init__()
