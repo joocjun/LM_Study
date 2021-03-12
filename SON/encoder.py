@@ -30,3 +30,7 @@ def test_encoder(hidden_size=768.,head_num=12):
     
     if output.shape == sample_tensor.shape:
         print('valid')
+        
+
+if __name__ == "__main__":
+    test_encoder()
