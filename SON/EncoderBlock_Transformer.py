@@ -1,36 +1,43 @@
 import tensorflow as tf
-from MultiHeadAttention import MultiHeadAttention
-#train mode / inference mode 구별 추가
+import numpy as np 
+
+config = {'hidden_size' : 768,
+          'max_seq' :256,
+          'head_num' : 12,
+          'dropout': 0.1,
+          'layer_norm_epsilon': 1e-12}
+
 class EncoderBlock(tf.keras.Model):
-    def __init__(self,hidden_size,head):
+    def __init__(self,hidden_size,head_num,dropout,layer_norm_epsilon):
         super(EncoderBlock,self).__init__()
-        
-        self.attention = MultiHeadAttention(hidden_size,head)
-        self.attention_norm = tf.keras.layers.BatchNormalization()
+
+        self.MultiHeadAttention = MultiHeadAttention(hidden_size,head_num)
+        self.MHA_Dropout = tf.keras.layers.Dropout(dropout)
+        self.MHA_Normalization = tf.keras.layers.LayerNormalization(epsilon=layer_norm_epsilon)
 
         self.FFN = tf.keras.Sequential([
-            tf.keras.layers.Dense(hidden_size*4),
-            tf.keras.layers.LeakyReLU(),
-            tf.keras.layers.Dense(hidden_size)])
-        
-        self.FFN_norm = tf.keras.layers.BatchNormalization()
-
-    def call(self,x): # x = q = k = v
-        z = self.attention_norm(x)
-        attention_weight, output = self.attention(x,x,x)
-        z= x + output
-        z = z + self.FFN(self.FFN_norm(z))
-
-        return z
-
-def test_encoder(hidden_size=768.,head_num=12):
-    sample_tensor = tf.random.normal([10,256,768])
-    ENCODER = EncoderBlock(hidden_size,head_num)
-    output = ENCODER(sample_tensor)
+                                        tf.keras.layers.Dense(hidden_size*4),
+                                        tf.keras.layers.LeakyReLU(),
+                                        tf.keras.layers.Dense(hidden_size)])
+        self.FFN_Dropout = tf.keras.layers.Dropout(dropout)
+        self.FFN_Normalization = tf.keras.layers.LayerNormalization(epsilon=layer_norm_epsilon)
     
-    if output.shape == sample_tensor.shape:
-        print('valid')
-        
+    def call(self,x):
+        normalized_x = self.MHA_Normalization(x)
+        attention_weight , attention_output = self.MultiHeadAttention(normalized_x,normalized_x,normalized_x)
+        attention_output = x + self.MHA_Dropout(attention_output)
 
-if __name__ == "__main__":
-    test_encoder()
+        normalized_attention_output = self.FFN_Normalization(attention_output)
+        FFN_output = attention_output + self.FFN_Dropout(self.FFN(normalized_attention_output))
+
+        return attention_weight, FFN_output
+
+def testEncoder(config):
+    sample_tensor = tf.random.normal([10,config['max_seq'],config['hidden_size']])
+    Encoder = EncoderBlock(config['hidden_size'],config['head_num'],config['dropout'],config['layer_norm_epsilon'])
+    attention_weight , encoder_output = Encoder(sample_tensor)
+
+    if encoder_output.shape == sample_tensor.shape:
+        print('Valid!')
+    else:
+        print('Shape Error')
