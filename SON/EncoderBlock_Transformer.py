@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np 
+from MultiHeadAttention import MultiHeadAttention
 
 config = {'hidden_size' : 768,
           'max_seq' :256,
