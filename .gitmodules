@@ -1,0 +1,6 @@
+[submodule "SeungoneKim/BERT/bert"]
+	path = SeungoneKim/BERT/bert
+	url = https://github.com/google-research/bert.git
+[submodule "SeungoneKim/GPT/finetune-transformer-lm"]
+	path = SeungoneKim/GPT/finetune-transformer-lm
+	url = https://github.com/openai/finetune-transformer-lm.git
